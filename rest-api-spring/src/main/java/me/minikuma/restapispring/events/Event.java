@@ -1,16 +1,21 @@
 package me.minikuma.restapispring.events;
 
-import lombok.Builder;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@AllArgsConstructor @NoArgsConstructor
+@Getter @Setter
+@EqualsAndHashCode(of = "id")
 @Builder
 public class Event {
     private Integer id;
     private String name;
     private String description;
     private LocalDateTime beginEnrollmentDateTime;
-    private LocalDateTime endEnrollmentDateTime;
+    private LocalDateTime closeEnrollmentDateTime;
+    private LocalDateTime beginEventDateTime;
+    private LocalDateTime endEventDateTime;
     private String location;
     private int basePrice;
     private int maxPrice;
