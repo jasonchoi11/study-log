@@ -1,15 +1,24 @@
 package me.minikuma.restapispring.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.aspectj.lang.annotation.Before;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 
@@ -17,20 +26,30 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 public class EventControllerTest {
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
-    EventRepository eventRepository;
+    @Autowired
+    private WebApplicationContext ctx;
+
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+                .addFilters(new CharacterEncodingFilter("UTF-8", true))
+                .alwaysDo(print())
+                .build();
+    }
 
     @Test
     public void 이벤트를만든다() throws Exception {
         Event event = Event.builder()
+                .id(100)
                 .name("Java Study")
                 .description("Java REST API Study")
                 .beginEnrollmentDateTime(LocalDateTime.of(2021, 5, 10, 0, 0, 0))
@@ -41,10 +60,10 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitEnrollment(100)
                 .location("강남역 D2 StartUp Factory")
+                .free(true)
+                .offline(false)
+                .eventStatus(EventStatus.PUBLISHED)
                 .build();
-
-        event.setId(1000);
-        Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc.perform(post("/api/events/")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -54,6 +73,9 @@ public class EventControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE));
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
+                .andExpect(jsonPath("id").value(Matchers.not(100)))
+                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
     }
 }

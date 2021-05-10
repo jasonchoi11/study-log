@@ -1,30 +1,22 @@
 package me.minikuma.restapispring.events;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@AllArgsConstructor @NoArgsConstructor
-@Getter @Setter
-@EqualsAndHashCode(of = "id")
-@Builder
-@Entity
-public class Event {
-    @Id @GeneratedValue
-    private Integer id;
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
+public class EventDto {
     private String name;
     private String description;
     private LocalDateTime beginEnrollmentDateTime;
     private LocalDateTime closeEnrollmentDateTime;
     private LocalDateTime beginEventDateTime;
     private LocalDateTime endEventDateTime;
-    private String location;
+    private String location; // 미 존재하면 온라인 모임으로 세팅됨
     private int basePrice;
     private int maxPrice;
     private int limitEnrollment;
-    private boolean offline;
-    private boolean free;
-    @Enumerated(EnumType.STRING)
-    private EventStatus eventStatus = EventStatus.DRAFT;
 }
