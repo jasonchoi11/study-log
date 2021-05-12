@@ -43,7 +43,7 @@ public class EventControllerTest {
 
     @Test
     public void createEvent() throws Exception {
-        EventDto event = EventDto.builder()
+        EventDto eventDto = EventDto.builder()
                 .name("Java Study")
                 .description("Java REST API Study")
                 .beginEnrollmentDateTime(LocalDateTime.of(2021, 5, 10, 0, 0, 0))
@@ -59,7 +59,7 @@ public class EventControllerTest {
         mockMvc.perform(post("/api/events/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(event)))
+                .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -105,4 +105,25 @@ public class EventControllerTest {
                     .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void createEvent_Bad_Request_Wrong_Input() throws Exception {
+        EventDto eventDto = EventDto.builder()
+                .name("Java Study")
+                .description("Java REST API Study")
+                .beginEnrollmentDateTime(LocalDateTime.of(2021, 5, 10, 0, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2021, 5,9, 0, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2021, 5, 10, 0, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2021, 5, 10, 0, 0, 0))
+                .basePrice(1000000)
+                .maxPrice(200)
+                .limitEnrollment(100)
+                .location("강남역 D2 StartUp Factory")
+                .build();
+        this.mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
+    }
+
 }
