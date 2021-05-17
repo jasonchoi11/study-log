@@ -2,8 +2,8 @@ package me.minikuma.restapispring.events;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -24,9 +24,10 @@ public class EventController {
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
     private final EventValidator eventValidator;
+    private final EventResource eventResource;
 
     @PostMapping
-    public ResponseEntity createEvents(@RequestBody @Valid EventDto eventDto, Errors errors) {
+    public ResponseEntity<?> createEvents(@RequestBody @Valid EventDto eventDto, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
@@ -43,11 +44,8 @@ public class EventController {
 
         Event newEvent = this.eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
+        EntityModel<Event> entityModel = eventResource.toModel(newEvent);
 
-        EventResource eventResource = new EventResource(event);
-        eventResource.add(linkTo(EventController.class).withRel("query-event"));
-        eventResource.add(linkTo(EventController.class).slash(newEvent.getId()).withSelfRel());
-        eventResource.add(linkTo(EventController.class).slash(newEvent.getId()).withRel("update-event"));
-        return ResponseEntity.created(createdUri).body(eventResource);
+        return ResponseEntity.created(createdUri).body(entityModel);
     }
 }
