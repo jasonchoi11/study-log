@@ -1,23 +1,18 @@
 package me.minikuma.restapispring.events;
 
-import org.springframework.hateoas.CollectionModel;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.RepresentationModelAssembler;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-@Component
-public class EventResource implements RepresentationModelAssembler<Event, EntityModel<Event>> {
-    @Override
-    public EntityModel<Event> toModel(Event event) {
-        Link withSelfRel = linkTo(EventController.class).slash(event.getId()).withSelfRel();
-        return EntityModel.of(event,
-                withSelfRel,
-                withSelfRel.withRel("query-event"),
-                withSelfRel.withRel("update-event")
-        );
-    }
+@Getter
+@AllArgsConstructor
+public class EventResource extends RepresentationModel {
+    @JsonUnwrapped
+    private final Event event;
 }
