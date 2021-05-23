@@ -40,12 +40,12 @@ public class EventControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     // 전 처리
     @BeforeEach
-    public void setup(WebApplicationContext webApplicationContext, RestDocumentationContextProvider provider) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+    public void setup(WebApplicationContext context, RestDocumentationContextProvider provider) {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))
                 .alwaysDo(print())
                 .apply(documentationConfiguration(provider)
