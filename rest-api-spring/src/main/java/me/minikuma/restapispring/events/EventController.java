@@ -6,19 +6,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -49,23 +48,29 @@ public class EventController {
 
         Event newEvent = this.eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
-        WebMvcLinkBuilder selfLink = linkTo(EventController.class).slash(newEvent.getId());
-
-        EventResource eventResource = new EventResource(newEvent);
-        eventResource.add(selfLink.withSelfRel());
-        eventResource.add(linkTo(EventController.class).withRel("query-event"));
-        eventResource.add(selfLink.withRel("update-event"));
-        eventResource.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
-        return ResponseEntity.created(createdUri).body(eventResource);
+        EntityModel<Event> eventEntityModel = EventResource.toEventModel(event);
+        return ResponseEntity.created(createdUri).body(eventEntityModel);
     }
 
     @GetMapping
     public ResponseEntity<?> queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
         Page<Event> page = this.eventRepository.findAll(pageable);
-        var pagedResources = assembler.toModel(page);
+        var pagedResources = assembler.toModel(page, EventResource::toEventSelfModel);
+        pagedResources.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));
         return ResponseEntity.ok(pagedResources);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEvent(@PathVariable Integer id) {
+        Optional<Event> event = this.eventRepository.findById(id);
+        if (event.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Event selectedEvent = event.get();
+        EntityModel<Event> eventModel = EventResource.toEventModel(selectedEvent);
+        eventModel.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));
+        return ResponseEntity.ok(eventModel);
+    }
 
     private ResponseEntity<?> badRequest(Errors errors) {
         return ResponseEntity.badRequest().body(ErrorsResource.toModel(errors));
