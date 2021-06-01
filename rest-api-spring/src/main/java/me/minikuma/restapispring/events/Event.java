@@ -1,6 +1,7 @@
 package me.minikuma.restapispring.events;
 
 import lombok.*;
+import me.minikuma.restapispring.accounts.Account;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -27,6 +28,8 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+    @ManyToOne
+    private Account manager;
 
     public void update() {
         // update free

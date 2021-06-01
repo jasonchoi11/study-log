@@ -1,24 +1,15 @@
 package me.minikuma.restapispring.index;
 
+import me.minikuma.restapispring.common.BaseControllerTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
-@ActiveProfiles(value = "test")
-public class IndexControllerTest {
+public class IndexControllerTest extends BaseControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -30,5 +21,4 @@ public class IndexControllerTest {
                 .andExpect(jsonPath("_links.events").exists())
         ;
     }
-
 }
