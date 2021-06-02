@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Entity
 @Setter @Getter @EqualsAndHashCode(of ="id")
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor @Builder
 public class Account {
     @Id @GeneratedValue
     private Integer id;

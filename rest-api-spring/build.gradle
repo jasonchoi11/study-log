@@ -45,6 +45,7 @@ dependencies {
     testImplementation 'pl.pragmatists:JUnitParams:1.0.4'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.1.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-security'
 }
 
 test {
