@@ -1,6 +1,7 @@
 package me.minikuma.restapispring.accounts;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -18,12 +19,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountService implements UserDetailsService {
 
-    private final AccountRepository accountRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    AccountRepository accountRepository;
 
-    public Account saveAccount(Account account) {
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    public void saveAccount(Account account) {
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
-        return this.accountRepository.save(account);
+        this.accountRepository.save(account);
     }
 
     @Override
