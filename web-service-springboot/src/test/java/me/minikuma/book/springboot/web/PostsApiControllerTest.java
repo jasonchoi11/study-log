@@ -35,7 +35,7 @@ class PostsApiControllerTest {
     private PostsRepository postsRepository;
 
     @AfterEach
-    public void delete() {
+    public void cleanUp() {
         postsRepository.deleteAll();
     }
 
