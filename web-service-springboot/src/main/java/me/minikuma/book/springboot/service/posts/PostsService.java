@@ -1,6 +1,7 @@
 package me.minikuma.book.springboot.service.posts;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.minikuma.book.springboot.domain.posts.Posts;
 import me.minikuma.book.springboot.domain.posts.PostsRepository;
 import me.minikuma.book.springboot.web.dto.PostSaveRequestDto;
@@ -9,6 +10,7 @@ import me.minikuma.book.springboot.web.dto.PostsUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostsService {

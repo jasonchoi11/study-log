@@ -16,8 +16,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.event.annotation.AfterTestClass;
-import org.springframework.test.context.event.annotation.AfterTestExecution;
 
 import java.util.List;
 
@@ -36,7 +34,7 @@ class PostsApiControllerTest {
     @Autowired
     private PostsRepository postsRepository;
 
-    @AfterTestExecution
+    @AfterEach
     public void delete() {
         postsRepository.deleteAll();
     }
@@ -100,8 +98,10 @@ class PostsApiControllerTest {
         // then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isGreaterThan(0L);
-        List<Posts> postsList = postsRepository.findAll();
-        assertThat(postsList.get(0).getTitle()).isEqualTo(expectedTitle);
-        assertThat(postsList.get(0).getContent()).isEqualTo(expectedContent);
+
+        List<Posts> posts = postsRepository.findAll();
+        log.info(posts.get(0).getContent());
+        assertThat(posts.get(0).getTitle()).isEqualTo(expectedTitle);
+        assertThat(posts.get(0).getContent()).isEqualTo(expectedContent);
     }
 }

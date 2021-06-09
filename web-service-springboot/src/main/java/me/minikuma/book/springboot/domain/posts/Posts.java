@@ -1,14 +1,17 @@
 package me.minikuma.book.springboot.domain.posts;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@DynamicUpdate
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Posts {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
