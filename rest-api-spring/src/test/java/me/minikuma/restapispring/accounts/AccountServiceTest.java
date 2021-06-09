@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Set;
@@ -22,7 +23,7 @@ class AccountServiceTest {
     private AccountService accountService;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("시큐리티를 적용하여 username 과 password 값을 받아올 수 있는 지 확인한다")
@@ -37,14 +38,14 @@ class AccountServiceTest {
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
 
-        this.accountRepository.save(account);
+        this.accountService.saveAccount(account);
 
         // when
         UserDetailsService userDetailsService = this.accountService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         // then
-        assertThat(userDetails.getPassword()).isEqualTo(password);
+        assertThat(passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }
 
     @Test
