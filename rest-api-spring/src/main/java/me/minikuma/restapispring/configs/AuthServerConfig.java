@@ -1,5 +1,6 @@
 package me.minikuma.restapispring.configs;
 
+import lombok.RequiredArgsConstructor;
 import me.minikuma.restapispring.accounts.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -14,12 +15,16 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 
 @Configuration
 @EnableAuthorizationServer
+@RequiredArgsConstructor
 public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
-    @Autowired PasswordEncoder passwordEncoder;
-    @Autowired AuthenticationManager authenticationManager;
-    @Autowired AccountService accountService;
-    @Autowired TokenStore tokenStore;
+    private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final AccountService accountService;
+
+    private final TokenStore tokenStore;
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {

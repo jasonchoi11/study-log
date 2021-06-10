@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 class AccountServiceTest {
 
     @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
     private AccountService accountService;
 
     @Autowired
@@ -34,11 +37,11 @@ class AccountServiceTest {
         // given
         Account account = Account.builder()
                 .email(username)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
 
-        this.accountService.saveAccount(account);
+        accountRepository.save(account);
 
         // when
         UserDetailsService userDetailsService = this.accountService;

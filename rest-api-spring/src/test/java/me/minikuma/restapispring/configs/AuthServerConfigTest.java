@@ -1,12 +1,13 @@
 package me.minikuma.restapispring.configs;
 
 import me.minikuma.restapispring.accounts.Account;
+import me.minikuma.restapispring.accounts.AccountRepository;
 import me.minikuma.restapispring.accounts.AccountRole;
-import me.minikuma.restapispring.accounts.AccountService;
 import me.minikuma.restapispring.common.BaseControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Set;
 
@@ -19,7 +20,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AuthServerConfigTest extends BaseControllerTest {
 
     @Autowired
-    AccountService accountService;
+    AccountRepository accountRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("인증 토큰 발급 받는 테스트")
@@ -28,9 +32,9 @@ public class AuthServerConfigTest extends BaseControllerTest {
         String username = "minikuma@xxx.com";
         String password = "minikuma";
 
-        this.accountService.saveAccount(Account.builder()
+        this.accountRepository.save(Account.builder()
                 .email(username)
-                .password(password)
+                .password(this.passwordEncoder.encode(password))
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build());
 

@@ -1,5 +1,6 @@
 package me.minikuma.restapispring.configs;
 
+import lombok.RequiredArgsConstructor;
 import me.minikuma.restapispring.accounts.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -19,19 +20,19 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    AccountService accountService;
-
-    @Bean
-    public TokenStore tokenStore() {
-        return new InMemoryTokenStore();
-    }
+    private final AccountService accountService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public TokenStore tokenStore() {
+        return new InMemoryTokenStore();
     }
 
     @Bean
@@ -55,13 +56,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .anonymous()
-                .and()
-                .formLogin()
-                .and()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/**").authenticated()
-                .anyRequest().permitAll()
+            .anonymous()
+            .and()
+            .formLogin()
+            .and()
+            .authorizeRequests()
+            .mvcMatchers(HttpMethod.GET, "/api/**").permitAll()
+            .anyRequest().authenticated()
         ;
     }
 }
