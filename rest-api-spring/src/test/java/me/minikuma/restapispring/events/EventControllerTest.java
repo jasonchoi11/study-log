@@ -1,5 +1,8 @@
 package me.minikuma.restapispring.events;
 
+import me.minikuma.restapispring.accounts.Account;
+import me.minikuma.restapispring.accounts.AccountRepository;
+import me.minikuma.restapispring.accounts.AccountRole;
 import me.minikuma.restapispring.common.BaseControllerTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,21 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,18 +34,17 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     // 전 처리
     @BeforeEach
-    public void setup(WebApplicationContext context, RestDocumentationContextProvider provider) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .addFilters(new CharacterEncodingFilter("UTF-8", true))
-                .alwaysDo(print())
-                .apply(documentationConfiguration(provider)
-                        .operationPreprocessors()
-                        .withRequestDefaults(prettyPrint())
-                        .withResponseDefaults(prettyPrint())
-                )
-                .build();
+    public void setup() {
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
     }
 
     @Test
@@ -63,6 +64,7 @@ public class EventControllerTest extends BaseControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/events/")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(eventDto)))
@@ -70,7 +72,7 @@ public class EventControllerTest extends BaseControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
                 .andExpect(jsonPath("free").value(false))
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
@@ -126,6 +128,31 @@ public class EventControllerTest extends BaseControllerTest {
                     )
                 ))
         ;
+    }
+
+    private String getAccessToken() throws Exception {
+        // given
+        String username = "minikuma@xxx.com";
+        String password = "minikuma";
+
+        this.accountRepository.save(Account.builder()
+                .email(username)
+                .password(this.passwordEncoder.encode(password))
+                .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                .build());
+
+        String clientId = "myApp";
+        String clientSecret = "pass";
+
+        ResultActions perform = this.mockMvc.perform(post("/oauth/token")
+                .with(httpBasic(clientId, clientSecret))
+                .param("username", username)
+                .param("password", password)
+                .param("grant_type", "password"));
+
+        var responseBody = perform.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser parser = new Jackson2JsonParser();
+        return parser.parseMap(responseBody).get("access_token").toString();
     }
 
     @Test

@@ -2,7 +2,6 @@ package me.minikuma.restapispring.configs;
 
 import lombok.RequiredArgsConstructor;
 import me.minikuma.restapispring.accounts.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,11 +23,7 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AccountService accountService;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public TokenStore tokenStore() {
@@ -44,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(accountService)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -56,13 +51,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .anonymous()
-            .and()
-            .formLogin()
-            .and()
-            .authorizeRequests()
-            .mvcMatchers(HttpMethod.GET, "/api/**").permitAll()
-            .anyRequest().authenticated()
+            .anonymous() // 익명사용자 허용
+                .and()
+            .formLogin() // form 인증 사용
+                .and()
+            .authorizeRequests() // 허용할 요청 세팅
+                .mvcMatchers(HttpMethod.GET, "/api/**").authenticated() // /api 하위 모든 경로를 인증함
+                .anyRequest().authenticated() // 나머지 인증 처리
         ;
     }
 }

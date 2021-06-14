@@ -20,28 +20,25 @@ import static org.junit.jupiter.api.Assertions.fail;
 class AccountServiceTest {
 
     @Autowired
-    private AccountRepository accountRepository;
+    AccountService accountService;
 
     @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("시큐리티를 적용하여 username 과 password 값을 받아올 수 있는 지 확인한다")
     public void findByUsername() {
-        String username = "minikuma@test.com";
+        String username = "minikuma@xxx.com";
         String password = "minikuma";
 
         // given
         Account account = Account.builder()
                 .email(username)
-                .password(passwordEncoder.encode(password))
+                .password(password)
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
 
-        accountRepository.save(account);
+        accountService.saveAccount(account); // 저장
 
         // when
         UserDetailsService userDetailsService = this.accountService;
