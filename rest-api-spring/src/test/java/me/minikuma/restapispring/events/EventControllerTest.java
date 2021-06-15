@@ -1,8 +1,8 @@
 package me.minikuma.restapispring.events;
 
 import me.minikuma.restapispring.accounts.Account;
-import me.minikuma.restapispring.accounts.AccountRepository;
 import me.minikuma.restapispring.accounts.AccountRole;
+import me.minikuma.restapispring.accounts.AccountService;
 import me.minikuma.restapispring.common.BaseControllerTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,9 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -23,6 +26,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,19 +36,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class EventControllerTest extends BaseControllerTest {
     @Autowired
-    private EventRepository eventRepository;
+    EventRepository eventRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
+    AccountService accountService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    // 전 처리
     @BeforeEach
-    public void setup() {
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
+    public void setUp(WebApplicationContext context, RestDocumentationContextProvider provider) {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .addFilters(new CharacterEncodingFilter("UTF-8", true))
+                .apply(documentationConfiguration(provider))
+                .build();
     }
 
     @Test
@@ -67,7 +69,7 @@ public class EventControllerTest extends BaseControllerTest {
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(eventDto)))
+                    .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -135,11 +137,13 @@ public class EventControllerTest extends BaseControllerTest {
         String username = "minikuma@xxx.com";
         String password = "minikuma";
 
-        this.accountRepository.save(Account.builder()
+        Account account = Account.builder()
                 .email(username)
-                .password(this.passwordEncoder.encode(password))
+                .password(password)
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
-                .build());
+                .build();
+
+        this.accountService.saveAccount(account);
 
         String clientId = "myApp";
         String clientSecret = "pass";
