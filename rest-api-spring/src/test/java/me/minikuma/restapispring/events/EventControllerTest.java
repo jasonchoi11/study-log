@@ -1,6 +1,8 @@
 package me.minikuma.restapispring.events;
 
+import lombok.extern.slf4j.Slf4j;
 import me.minikuma.restapispring.accounts.Account;
+import me.minikuma.restapispring.accounts.AccountRepository;
 import me.minikuma.restapispring.accounts.AccountRole;
 import me.minikuma.restapispring.accounts.AccountService;
 import me.minikuma.restapispring.common.BaseControllerTest;
@@ -33,7 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@Slf4j
 public class EventControllerTest extends BaseControllerTest {
     @Autowired
     EventRepository eventRepository;
@@ -41,12 +43,21 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     AccountService accountService;
 
+    @Autowired
+    AccountRepository accountRepository;
+
     @BeforeEach
     public void setUp(WebApplicationContext context, RestDocumentationContextProvider provider) {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))
                 .apply(documentationConfiguration(provider))
                 .build();
+    }
+
+    @BeforeEach
+    public void cleanUp() {
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
     }
 
     @Test
@@ -65,11 +76,11 @@ public class EventControllerTest extends BaseControllerTest {
                 .location("강남역 D2 StartUp Factory")
                 .build();
 
-        mockMvc.perform(post("/api/events/")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaTypes.HAL_JSON)
-                    .content(objectMapper.writeValueAsString(eventDto)))
+        mockMvc.perform(post("/api/events")
+                    .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -108,7 +119,7 @@ public class EventControllerTest extends BaseControllerTest {
                             headerWithName(HttpHeaders.LOCATION).description("location header"),
                             headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                     ),
-                    responseFields(
+                    relaxedResponseFields(
                             fieldWithPath("id").description("identifier id"),
                             fieldWithPath("name").description("Name of new event"),
                             fieldWithPath("description").description("description of new event"),
@@ -132,6 +143,11 @@ public class EventControllerTest extends BaseControllerTest {
         ;
     }
 
+    public String getBearerToken() throws Exception {
+        log.info("{}", getAccessToken());
+        return "Bearer " + getAccessToken();
+    }
+
     private String getAccessToken() throws Exception {
         // given
         String username = "minikuma@xxx.com";
@@ -152,8 +168,8 @@ public class EventControllerTest extends BaseControllerTest {
                 .with(httpBasic(clientId, clientSecret))
                 .param("username", username)
                 .param("password", password)
-                .param("grant_type", "password"));
-
+                .param("grant_type", "password"))
+        ;
         var responseBody = perform.andReturn().getResponse().getContentAsString();
         Jackson2JsonParser parser = new Jackson2JsonParser();
         return parser.parseMap(responseBody).get("access_token").toString();
