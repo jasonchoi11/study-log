@@ -8,11 +8,14 @@ import me.minikuma.restapispring.common.BaseControllerTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.security.oauth2.client.test.BeforeOAuth2Context;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -44,8 +47,7 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     AccountRepository accountRepository;
 
-
-    @BeforeEach
+    @BeforeOAuth2Context
     public void setUp(WebApplicationContext webApplicationContext,
                       RestDocumentationContextProvider restDocumentation) {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
@@ -61,7 +63,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("정상적으로 이벤트를 생성하는 테스트")
+    @DisplayName("[POST] 정상적으로 이벤트를 생성하는 테스트")
     public void createEvent() throws Exception {
         EventDto eventDto = EventDto.builder()
                 .name("Java Study")
@@ -77,6 +79,7 @@ public class EventControllerTest extends BaseControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/events")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(eventDto)))
@@ -118,7 +121,7 @@ public class EventControllerTest extends BaseControllerTest {
                             headerWithName(HttpHeaders.LOCATION).description("location header"),
                             headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                     ),
-                    responseFields(
+                    relaxedResponseFields(
                             fieldWithPath("id").description("identifier id"),
                             fieldWithPath("name").description("Name of new event"),
                             fieldWithPath("description").description("description of new event"),
@@ -141,7 +144,7 @@ public class EventControllerTest extends BaseControllerTest {
                 ))
         ;
     }
-
+    // GET ACCESS TOKEN Method
     private String getAccessToken() throws Exception {
         // given
         String username = "minikuma@xxx.com";
@@ -171,8 +174,8 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("입력 받을 수 없는 값을 사용하는 경우에 에러가 발생하는 테스트")
-    public void createEvent_Bad_Request() throws Exception {
+    @DisplayName("[POST] 입력 받을 수 없는 값을 사용하는 경우에 에러가 발생하는 테스트")
+    public void getEvent_Bad_Request() throws Exception {
         Event event = Event.builder()
                 .id(100)
                 .name("Java Study")
@@ -199,7 +202,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("입력 값이 비어있는 경우에 에러가 발생하는 테스트")
+    @DisplayName("[POST] 입력 값이 비어있는 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Empty_Input() throws Exception {
         EventDto eventDto = EventDto.builder().build();
         this.mockMvc.perform(post("/api/events")
@@ -209,7 +212,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
+    @DisplayName("[POST] 입력 값이 잘못된 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception {
         EventDto eventDto = EventDto.builder()
                 .name("Java Study")
@@ -236,7 +239,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    @DisplayName("[GET] 30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     public void queryEvents() throws Exception {
         // given : 이벤트 30개 준비
         IntStream.range(0, 30).forEach(this::generateEvent);
@@ -253,13 +256,11 @@ public class EventControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("query-events"))
-
         ;
     }
 
     @Test
-    @DisplayName("기존의 이벤트 하나 조회하기")
+    @DisplayName("[GET] 기존의 이벤트 하나 조회하기")
     public void getEvent() throws Exception {
         // given
         Event event = this.generateEvent(100);
@@ -275,7 +276,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("없는 이벤트를 조회하면 404 를 응답한다")
+    @DisplayName("[GET] 없는 이벤트를 조회하면 404 를 응답한다")
     public void getEvent404() throws Exception {
         // when & then
         this.mockMvc.perform(get("/api/events/45693939"))
@@ -284,7 +285,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("이벤트를 정상적으로 수정하기")
+    @DisplayName("[PUT] 이벤트를 정상적으로 수정하기")
     public void updateEvent() throws Exception {
         // given
         Event newEvent = this.generateEvent(200);
@@ -305,7 +306,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("입력값이 잘못된 경우에 이벤트 수정 실패 (bad request)")
+    @DisplayName("[PUT] 입력값이 잘못된 경우에 이벤트 수정 실패 (bad request)")
     public void updateEvent400() throws Exception {
         // given
         Event newEvent = this.generateEvent(300);
@@ -321,7 +322,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("입력값이 잘못된 경우에 이벤트 수정 실패 (bad request)")
+    @DisplayName("[PUT] 입력값이 잘못된 경우에 이벤트 수정 실패 (bad request)")
     public void updateEvent400_Wrong() throws Exception {
         // given
         Event newEvent = this.generateEvent(400);
@@ -339,7 +340,7 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 이벤트 수정 실패")
+    @DisplayName("[PUT] 존재하지 않는 이벤트 수정 실패")
     public void updateEvent404() throws Exception {
         // given
         Event newEvent = this.generateEvent(500);

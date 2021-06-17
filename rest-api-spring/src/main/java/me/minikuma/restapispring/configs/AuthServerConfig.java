@@ -26,15 +26,15 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) {
         security.passwordEncoder(passwordEncoder)
-                .tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')")
-                .checkTokenAccess("hasAuthority('ROLE_TRUSTED_CLIENT')");
+                .checkTokenAccess("permitAll()")
+        ;
     }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
                 .withClient("myApp")
-                .authorizedGrantTypes("password", "refresh_token")
+                .authorizedGrantTypes("authorization_code", "password", "refresh_token")
                 .scopes("read", "write")
                 .secret(this.passwordEncoder.encode("pass"))
                 .accessTokenValiditySeconds(10 * 60)

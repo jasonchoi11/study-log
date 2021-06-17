@@ -18,6 +18,9 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://repo.spring.io/snapshot'
+    }
 }
 
 ext {
@@ -49,10 +52,9 @@ dependencies {
     testImplementation 'pl.pragmatists:JUnitParams:1.0.4'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.1.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.0.RELEASE'
-    testImplementation 'org.springframework.security:spring-security-test:5.5.0'
-    implementation 'org.springframework.security:spring-security-oauth2-client:5.5.0'
+
+    compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.0.RELEASE'
+    testImplementation 'org.springframework.security:spring-security-test'
 }
 
 test {
