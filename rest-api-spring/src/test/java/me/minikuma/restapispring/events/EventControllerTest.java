@@ -1,6 +1,5 @@
 package me.minikuma.restapispring.events;
 
-import lombok.extern.slf4j.Slf4j;
 import me.minikuma.restapispring.accounts.Account;
 import me.minikuma.restapispring.accounts.AccountRepository;
 import me.minikuma.restapispring.accounts.AccountRole;
@@ -18,7 +17,6 @@ import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -29,13 +27,13 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Slf4j
 public class EventControllerTest extends BaseControllerTest {
     @Autowired
     EventRepository eventRepository;
@@ -46,11 +44,13 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     AccountRepository accountRepository;
 
+
     @BeforeEach
-    public void setUp(WebApplicationContext context, RestDocumentationContextProvider provider) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .addFilters(new CharacterEncodingFilter("UTF-8", true))
-                .apply(documentationConfiguration(provider))
+    public void setUp(WebApplicationContext webApplicationContext,
+                      RestDocumentationContextProvider restDocumentation) {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply(documentationConfiguration(restDocumentation))
+                .alwaysDo(document("{method-name}", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
                 .build();
     }
 
@@ -77,7 +77,6 @@ public class EventControllerTest extends BaseControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/events")
-                    .header(HttpHeaders.AUTHORIZATION, getBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(eventDto)))
@@ -119,7 +118,7 @@ public class EventControllerTest extends BaseControllerTest {
                             headerWithName(HttpHeaders.LOCATION).description("location header"),
                             headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                     ),
-                    relaxedResponseFields(
+                    responseFields(
                             fieldWithPath("id").description("identifier id"),
                             fieldWithPath("name").description("Name of new event"),
                             fieldWithPath("description").description("description of new event"),
@@ -143,11 +142,6 @@ public class EventControllerTest extends BaseControllerTest {
         ;
     }
 
-    public String getBearerToken() throws Exception {
-        log.info("{}", getAccessToken());
-        return "Bearer " + getAccessToken();
-    }
-
     private String getAccessToken() throws Exception {
         // given
         String username = "minikuma@xxx.com";
@@ -169,6 +163,7 @@ public class EventControllerTest extends BaseControllerTest {
                 .param("username", username)
                 .param("password", password)
                 .param("grant_type", "password"))
+                .andDo(print())
         ;
         var responseBody = perform.andReturn().getResponse().getContentAsString();
         Jackson2JsonParser parser = new Jackson2JsonParser();

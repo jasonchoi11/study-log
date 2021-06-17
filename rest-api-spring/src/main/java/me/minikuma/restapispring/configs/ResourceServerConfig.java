@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 
 @Configuration
 @EnableResourceServer
-public class ResourceServer extends ResourceServerConfigurerAdapter {
+public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
         resources.resourceId("event");
@@ -22,10 +22,9 @@ public class ResourceServer extends ResourceServerConfigurerAdapter {
             .anonymous()
                 .and()
             .authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/api/**")
-                    .anonymous()
-                .anyRequest()
-                    .authenticated()
+                .mvcMatchers(HttpMethod.GET, "/api/**").permitAll()
+                .mvcMatchers(HttpMethod.POST, "/api/**").authenticated()
+                .mvcMatchers(HttpMethod.PUT, "/api/**").authenticated()
                 .and()
             .exceptionHandling()
                 .accessDeniedHandler(new OAuth2AccessDeniedHandler())

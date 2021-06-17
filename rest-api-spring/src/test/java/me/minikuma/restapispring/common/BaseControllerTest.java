@@ -1,6 +1,7 @@
 package me.minikuma.restapispring.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.minikuma.restapispring.configs.AuthServerConfig;
 import org.junit.Ignore;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
