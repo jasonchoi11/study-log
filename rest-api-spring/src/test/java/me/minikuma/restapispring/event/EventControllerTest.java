@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class EventControllerTest {
 
@@ -34,6 +33,37 @@ public class EventControllerTest {
 
     @Test
     public void createEvent() throws Exception {
+        // Post Request Body
+        EventDto event = EventDto.builder()
+                .name("spring")
+                .description("rest api spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2021, 6, 22, 10, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2021, 6, 23, 10, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2021, 6, 22, 10, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2021, 6, 23, 10, 0, 0))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("상암 IG 센터")
+                .build();
+
+        mockMvc.perform(post("/api/events")
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON)
+                    .content(objectMapper.writeValueAsString(event))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("id").value(Matchers.not(100)))
+                .andExpect(jsonPath("free").value(Matchers.not(true)))
+        ;
+    }
+
+    @Test
+    public void createEvent_Bad_Request() throws Exception {
         // Post Request Body
         Event event = Event.builder()
                 .id(100)
@@ -49,20 +79,52 @@ public class EventControllerTest {
                 .location("상암 IG 센터")
                 .free(true)
                 .offLine(false)
+                .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
         mockMvc.perform(post("/api/events")
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .accept(MediaTypes.HAL_JSON)
-                    .content(objectMapper.writeValueAsString(event))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(event))
                 )
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").exists())
-                .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
-                .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    public void createEvent_Bad_Request_Empty_Input() throws Exception {
+        EventDto event = EventDto.builder().build();
+
+        this.mockMvc.perform(post("/api/events")
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .content(this.objectMapper.writeValueAsString(event))
+                )
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    public void createEvent_Bad_Request_Wrong_Input() throws Exception {
+        // Post Request Body
+        EventDto event = EventDto.builder()
+                .name("spring")
+                .description("rest api spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2021, 6, 24, 10, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2021, 6, 21, 10, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2021, 6, 24, 10, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2021, 6, 23, 10, 0, 0))
+                .basePrice(10000)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("상암 IG 센터")
+                .build();
+
+        this.mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(this.objectMapper.writeValueAsString(event))
+        )
+                .andExpect(status().isBadRequest())
         ;
     }
 }
