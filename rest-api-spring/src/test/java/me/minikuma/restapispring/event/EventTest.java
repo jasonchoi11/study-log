@@ -1,5 +1,6 @@
 package me.minikuma.restapispring.event;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,5 +28,34 @@ public class EventTest {
 
         assertThat(event.getName()).isEqualTo(name);
         assertThat(event.getDescription()).isEqualTo(description);
+    }
+
+    @Test
+    public void testFree() {
+        // given
+        Event event = Event.builder()
+                .basePrice(0)
+                .maxPrice(0)
+                .build();
+
+        // when
+        event.update();
+
+        // then
+        Assertions.assertThat(event.isFree()).isTrue();
+    }
+
+    @Test
+    public void testOffline() {
+        // given
+        Event event = Event.builder()
+                .location("상암 디지털미디어시티")
+                .build();
+
+        // when
+        event.update();
+
+        // then
+        assertThat(event.isOffline()).isTrue();
     }
 }
