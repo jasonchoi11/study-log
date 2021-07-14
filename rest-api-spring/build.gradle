@@ -56,4 +56,5 @@ dependencies {
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.1.RELEASE'
     testCompile('io.rest-assured:rest-assured:3.0.2')
     testCompile('org.springframework.restdocs:spring-restdocs-restassured')
+    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.0.RELEASE')
 }
