@@ -1,6 +1,6 @@
 package me.minikuma.restapispring.event;
 
-import me.minikuma.restapispring.common.BastControllerTest;
+import me.minikuma.restapispring.common.BaseControllerTest;
 import me.minikuma.restapispring.common.TestDescription;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class EventControllerTest extends BastControllerTest {
+public class EventControllerTest extends BaseControllerTest {
 
     @Autowired
     EventRepository eventRepository;

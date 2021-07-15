@@ -2,7 +2,6 @@ package me.minikuma.restapispring.accounts;
 
 import me.minikuma.restapispring.common.TestDescription;
 import org.assertj.core.api.Assertions;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,12 +12,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Set;
-
-import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -29,7 +27,7 @@ public class AccountServiceTest {
     AccountService accountService;
 
     @Autowired
-    AccountRepository accountRepository;
+    PasswordEncoder passwordEncoder;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -47,14 +45,14 @@ public class AccountServiceTest {
                 .build();
 
         // 계정 정보 저장
-        this.accountRepository.save(account);
+        this.accountService.saveAccount(account);
 
         // when
-        UserDetailsService userDetailsService = (UserDetailsService) accountService;
+        UserDetailsService userDetailsService = accountService;
         UserDetails findUser = userDetailsService.loadUserByUsername(username);
 
         // then
-        Assertions.assertThat(findUser.getPassword()).isEqualTo(password);
+        Assertions.assertThat(this.passwordEncoder.matches(password, findUser.getPassword())).isTrue();
     }
 
     @Test

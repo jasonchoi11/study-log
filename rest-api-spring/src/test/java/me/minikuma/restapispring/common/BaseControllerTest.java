@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import(RestDocsConfiguration.class)
 @ActiveProfiles("test")
 @Ignore
-public class BastControllerTest {
+public class BaseControllerTest {
     @Autowired
     protected MockMvc mockMvc;
 

@@ -17,4 +17,22 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
+//    @Bean
+//    public ApplicationRunner applicationRunner() {
+//        return new ApplicationRunner() {
+//            @Autowired
+//            AccountService accountService;
+//
+//            @Override
+//            public void run(ApplicationArguments args) throws Exception {
+//                Account account = Account.builder()
+//                        .email("xxx@xxx.com")
+//                        .password("test")
+//                        .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+//                        .build();
+//                accountService.saveAccount(account);
+//            }
+//        };
+//    }
 }
