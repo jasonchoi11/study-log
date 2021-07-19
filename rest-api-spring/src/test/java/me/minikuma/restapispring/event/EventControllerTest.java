@@ -6,6 +6,7 @@ import me.minikuma.restapispring.accounts.AccountRole;
 import me.minikuma.restapispring.accounts.AccountService;
 import me.minikuma.restapispring.common.BaseControllerTest;
 import me.minikuma.restapispring.common.TestDescription;
+import me.minikuma.restapispring.configs.AppProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class EventControllerTest extends BaseControllerTest {
 
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    AppProperties appProperties;
 
     @Before
     public void cleanUp() {
@@ -138,25 +142,18 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     private String getAccessToken() throws Exception {
-        // given
-        String username = "xxx@xxx.com";
-        String password = "test";
-
         Account account = Account.builder()
-                .email(username)
-                .password(password)
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
 
         this.accountService.saveAccount(account);
 
-        String clientId = "myApp";
-        String clientSecret = "pass";
-
         ResultActions perform = this.mockMvc.perform(post("/oauth/token")
-                .with(httpBasic(clientId, clientSecret))
-                .param("username", username)
-                .param("password", password)
+                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
+                .param("username", appProperties.getUserUsername())
+                .param("password", appProperties.getUserPassword())
                 .param("grant_type", "password"));
 
         var responseBody = perform.andReturn().getResponse().getContentAsString();
