@@ -1,7 +1,9 @@
 package me.minikuma.restapispring.event;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import me.minikuma.restapispring.accounts.Account;
+import me.minikuma.restapispring.accounts.AccountSerializer;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus;
     @ManyToOne
+    @JsonSerialize(using = AccountSerializer.class)
     private Account manager;
 
     public void update() {
