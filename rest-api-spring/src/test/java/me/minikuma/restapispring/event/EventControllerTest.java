@@ -137,34 +137,7 @@ public class EventControllerTest extends BaseControllerTest {
         ;
     }
 
-    private String getBearerToken(boolean needToCreateAccount) throws Exception {
-        return "Bearer " + getAccessToken(needToCreateAccount);
-    }
 
-    private String getAccessToken(boolean needToCreateAccount) throws Exception {
-        // given
-        if (needToCreateAccount) {
-            createAccount();
-        }
-        ResultActions perform = this.mockMvc.perform(post("/oauth/token")
-                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
-                .param("username", appProperties.getUserUsername())
-                .param("password", appProperties.getUserPassword())
-                .param("grant_type", "password"));
-
-        var responseBody = perform.andReturn().getResponse().getContentAsString();
-        Jackson2JsonParser jsonParser = new Jackson2JsonParser();
-        return jsonParser.parseMap(responseBody).get("access_token").toString();
-    }
-
-    private Account createAccount() {
-        Account account = Account.builder()
-                .email(appProperties.getUserUsername())
-                .password(appProperties.getUserPassword())
-                .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
-                .build();
-        return this.accountService.saveAccount(account);
-    }
 
     @Test
     @TestDescription("입력 받을 수 없는 값을 입력하는 경우에 에러(Bad_Request)가 발생한다.")
@@ -289,8 +262,6 @@ public class EventControllerTest extends BaseControllerTest {
         ;
     }
 
-
-
     @Test
     @TestDescription("기존의 이벤트 하나를 조회하기")
     public void getEvent() throws Exception {
@@ -322,7 +293,7 @@ public class EventControllerTest extends BaseControllerTest {
     public void updateEvent() throws Exception {
         // given
         Account account = this.createAccount();
-        Event event = this.generateEvent(400, account);
+        Event event = this.generateEvent(200, account);
 
         String eventName = "updated event";
         EventDto eventDto = this.modelMapper.map(event, EventDto.class);
@@ -398,16 +369,7 @@ public class EventControllerTest extends BaseControllerTest {
         ;
     }
 
-    private Event generateEvent(int index, Account account) {
-        Event event = buildEvent(index);
-        event.setManager(account);
-        return this.eventRepository.save(event);
-    }
-
-    private Event generateEvent(int index) {
-        Event event = buildEvent(index);
-        return this.eventRepository.save(event);
-    }
+    // private method
 
     private Event buildEvent(int index) {
         return Event.builder()
@@ -425,5 +387,45 @@ public class EventControllerTest extends BaseControllerTest {
                     .offline(true)
                     .eventStatus(EventStatus.DRAFT)
                     .build();
+    }
+
+    private Event generateEvent(int index, Account account) {
+        Event event = buildEvent(index);
+        event.setManager(account);
+        return this.eventRepository.save(event);
+    }
+
+    private Event generateEvent(int index) {
+        Event event = buildEvent(index);
+        return this.eventRepository.save(event);
+    }
+
+    private String getBearerToken(boolean needToCreateAccount) throws Exception {
+        return "Bearer " + getAccessToken(needToCreateAccount);
+    }
+
+    private String getAccessToken(boolean needToCreateAccount) throws Exception {
+        // given
+        if (needToCreateAccount) {
+            createAccount();
+        }
+        ResultActions perform = this.mockMvc.perform(post("/oauth/token")
+                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
+                .param("username", appProperties.getUserUsername())
+                .param("password", appProperties.getUserPassword())
+                .param("grant_type", "password"));
+
+        var responseBody = perform.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser jsonParser = new Jackson2JsonParser();
+        return jsonParser.parseMap(responseBody).get("access_token").toString();
+    }
+
+    private Account createAccount() {
+        Account account = Account.builder()
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
+                .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                .build();
+        return this.accountService.saveAccount(account);
     }
 }

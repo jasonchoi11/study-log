@@ -86,7 +86,7 @@ public class EventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getEvent(@PathVariable Integer id,
-                                      @CurrentUser Account currentUser) {
+                                      @CurrentUser Account account) {
         Optional<Event> findEvent = this.eventRepository.findById(id);
         if (findEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -95,10 +95,9 @@ public class EventController {
             EventResource eventResource = new EventResource(event);
             eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
 
-            if (event.getManager().equals(currentUser)) {
+            if (event.getManager().equals(account) || account != null) {
                 eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
             }
-
             return ResponseEntity.ok(eventResource);
         }
     }
