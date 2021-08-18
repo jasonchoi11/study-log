@@ -43,7 +43,6 @@ public class FrontControllerServletV3 extends HttpServlet {
         ModelView modelView = controllerV3.process(paramMap);
 
         String viewName = modelView.getViewName();
-
         // 논리 명 -> 물리 명으로 변환 resolver
         MyView myView = viewResolver(viewName);
         myView.render(modelView.getModel(), request, response);
