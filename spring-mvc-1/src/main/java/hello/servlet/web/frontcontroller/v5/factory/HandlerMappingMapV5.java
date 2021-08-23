@@ -10,9 +10,9 @@ import hello.servlet.web.frontcontroller.v4.controller.MemberSaveControllerV4;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HandlerMappingMapV5 implements HandlerMap {
+public class HandlerMappingMapV5 extends HandlerPathFactory {
     @Override
-    public Map<String, Object> createHanderMap() {
+    public Map<String, Object> createHandlerPath() {
         Map<String, Object> handlerMappingMap = new HashMap<>();
 
         // v5-v3 handler
