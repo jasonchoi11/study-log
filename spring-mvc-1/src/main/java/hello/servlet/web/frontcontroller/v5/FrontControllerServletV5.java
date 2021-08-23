@@ -5,6 +5,8 @@ import hello.servlet.web.frontcontroller.MyView;
 import hello.servlet.web.frontcontroller.v5.adaptor.ControllerV3HandlerAdaptor;
 import hello.servlet.web.frontcontroller.v5.adaptor.ControllerV4HandlerAdaptor;
 import hello.servlet.web.frontcontroller.v5.factory.HandlerFactory;
+import hello.servlet.web.frontcontroller.v5.factory.HandlerMap;
+import hello.servlet.web.frontcontroller.v5.factory.HandlerMappingMapV5;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -33,7 +35,9 @@ public class FrontControllerServletV5 extends HttpServlet {
     }
 
     private void initHandlerMappingMap() {
-        this.handlerMappingMap = new HandlerFactory().makeHandlerMappingMap().createHanderMap();
+        HandlerFactory factory = new HandlerFactory();
+        HandlerMap makeHandlerMap = factory.makeHandlerMap(new HandlerMappingMapV5());
+        this.handlerMappingMap = makeHandlerMap.createHanderMap();
 //        HandlerMappingMap map = new HandlerMappingMap();
 //        handlerMappingMap = map.handlerMap();
     }
