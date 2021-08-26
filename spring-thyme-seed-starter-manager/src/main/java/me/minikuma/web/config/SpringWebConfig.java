@@ -35,6 +35,7 @@ public class SpringWebConfig implements WebMvcConfigurer {
         WebMvcConfigurer.super.addFormatters(registry);
     }
 
+    // 메시지 공통화
     @Bean
     public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
