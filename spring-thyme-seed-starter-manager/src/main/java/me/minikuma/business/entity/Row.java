@@ -9,5 +9,5 @@ import lombok.ToString;
 @ToString @NoArgsConstructor
 public class Row {
     private Variety variety;
-    private Integer seedPerCell;
+    private Integer seedsPerCell;
 }

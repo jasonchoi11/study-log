@@ -5,13 +5,13 @@
 <head>
   <title>Spring Thyme Seed Starter Manager</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <link rel="stylesheet" type="text/css" media="all" href="../static/css/stsm.css" th:href="@{/css/stsm.css}"/>
+  <link rel="stylesheet" type="text/css" media="all" href="../../css/stsm.css" th:href="@{/css/stsm.css}"/>
 </head>
 
 <body>
 
 <div>
-  <img src="../static/images/stsmlogo.png" alt="STSM logo" title="STSM logo"
+  <img src="../../images/stsmlogo.png" alt="STSM logo" title="STSM logo"
        th:src="@{/images/stsmlogo.png}" th:alt-title="#{title.application}"/>
 </div>
 
@@ -61,16 +61,12 @@
   <h2 th:text="#{title.new}">Add new Seed Starter</h2>
 
   <form action="#" th:action="@{/seedstartermng}" th:object="${seedStarter}" method="post">
-
     <fieldset>
-
       <legend th:text="#{seedstarter.data}">Seed Starter Data</legend>
 
       <ul th:if="${#fields.hasErrors('*')}" class="errorlist">
         <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
       </ul>
-
-
       <div>
         <label for="datePlanted">
           <span th:text="#{seedstarter.datePlanted}">Date planted</span>
@@ -136,7 +132,9 @@
       <div class="submit">
         <button type="submit" name="save" th:text="#{seedstarter.create}">Add Seed Starter</button>
       </div>
+
     </fieldset>
+
   </form>
 </div>
 </body>

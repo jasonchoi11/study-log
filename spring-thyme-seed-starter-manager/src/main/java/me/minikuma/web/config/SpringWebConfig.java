@@ -1,5 +1,7 @@
 package me.minikuma.web.config;
 
+import me.minikuma.web.conversion.DateFormatter;
+import me.minikuma.web.conversion.VarietyFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +25,7 @@ public class SpringWebConfig implements WebMvcConfigurer {
     @Autowired
     private ApplicationContext applicationContext;
 
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
@@ -32,7 +35,18 @@ public class SpringWebConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        WebMvcConfigurer.super.addFormatters(registry);
+        registry.addFormatter(varietyFormatter());
+        registry.addFormatter(dateFormatter());
+    }
+
+    @Bean
+    public VarietyFormatter varietyFormatter() {
+        return new VarietyFormatter();
+    }
+
+    @Bean
+    public DateFormatter dateFormatter() {
+        return new DateFormatter();
     }
 
     // 메시지 공통화
