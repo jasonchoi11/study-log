@@ -7,7 +7,7 @@ public enum Feature {
     PH_CORRECTOR("PH_CORRECTOR");
 
     private String name;
-    public static final Feature[] ALL = { SEEDSTARTER_SPECIFIC_SUBSTRATE, FERTILIZER,  PH_CORRECTOR};
+    public static final Feature[] ALL = { SEEDSTARTER_SPECIFIC_SUBSTRATE, FERTILIZER, PH_CORRECTOR};
 
     Feature(final String name) {
         this.name = name;

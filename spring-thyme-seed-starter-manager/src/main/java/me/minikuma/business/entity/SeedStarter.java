@@ -7,12 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 @Getter @Setter
-@ToString @NoArgsConstructor
+@ToString @Builder @NoArgsConstructor @AllArgsConstructor
 public class SeedStarter {
     private Integer id;
     private Date datePlanted;
     private boolean covered;
-    private Type type = Type.PLASTIC;
+    private Type type;
     private Feature[] features;
-    private List<Row> rows = new ArrayList<>();
+    private List<Row>  rows = new ArrayList<>();
 }
