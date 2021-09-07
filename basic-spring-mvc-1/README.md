@@ -14,7 +14,8 @@
 [ x ] 요청 파라미터 - @ModelAttribute     
 [ x ] 요청 메시지 - 단순 텍스트      
 [ x ] 요청 메시지 - JSON     
-
+[ x ] HTTP 응답 - 정적 리소스, 뷰 템플릿    
+[ x ] HTTP 응답 - HTTP API, 메시지 바디 직접 입력    
 
 ---
 
