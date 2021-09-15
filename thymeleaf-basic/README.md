@@ -17,4 +17,12 @@
   * ```${#servletContext}```
   * ```${#locale}```    
 * Utility Object - https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#appendix-b-expression-utility-objects    
-* URL Link (```@{...}```)    
+* URL Link (```@{...}```)      
+* Literal
+  * 문자(```"'문자'"```) 주의 필요!
+  * 숫자
+  * NULL
+* Operator(연산)   
+* attribute (속성 값)    
+
+
