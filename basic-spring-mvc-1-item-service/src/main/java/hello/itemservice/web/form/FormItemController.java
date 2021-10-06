@@ -9,7 +9,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -18,6 +20,15 @@ import java.util.List;
 public class FormItemController {
 
     private final ItemRepository itemRepository;
+
+    @ModelAttribute("regions")
+    public Map<String, String> regions() {
+        Map<String, String> regions = new LinkedHashMap<>(); // 순서 보장
+        regions.put("SEOUL", "서울");
+        regions.put("BUSAN", "부산");
+        regions.put("JEJU", "제주");
+        return regions;
+    }
 
     @GetMapping
     public String items(Model model) {
@@ -39,6 +50,13 @@ public class FormItemController {
         return "form/addForm";
     }
 
+    @GetMapping("/{itemId}/edit")
+    public String editForm(@PathVariable Long itemId, Model model) {
+        Item findItem = itemRepository.findById(itemId);
+        model.addAttribute("item", findItem);
+        return "form/editForm";
+    }
+
     //    @PostMapping("/add")
     public String addItemV1(@RequestParam String itemName,
                             @RequestParam int price,
@@ -53,6 +71,29 @@ public class FormItemController {
         model.addAttribute("item", item);
 
         return "form/item";
+    }
+
+    /**
+     * Post/Redirect/Get -> "저장되었습니다" 알람을 띄우고 싶을 때
+     */
+    @PostMapping("/add")
+    public String addItemV6(Item item, RedirectAttributes redirectAttributes) {
+        log.info("item open = {}", item.isOpen());
+        log.info("item regions = {}", item.getRegions());
+
+        Item saveItem = itemRepository.save(item);
+
+        redirectAttributes.addAttribute("itemId", saveItem.getId());
+        redirectAttributes.addAttribute("status", true); // query param
+
+        return "redirect:/form/items/{itemId}";
+    }
+
+    @PostMapping("/{itemId}/edit")
+    public String edit(@PathVariable Long itemId, @ModelAttribute Item item) {
+        log.info("edit item = {}", item.isOpen());
+        itemRepository.update(itemId, item);
+        return "redirect:/form/items/{itemId}";
     }
 
     /**
@@ -95,32 +136,5 @@ public class FormItemController {
     public String addItemV5(Item item) {
         itemRepository.save(item);
         return "redirect:/form/items/" + item.getId();
-    }
-
-    /**
-     * Post/Redirect/Get -> "저장되었습니다" 알람을 띄우고 싶을 때
-     */
-    @PostMapping("/add")
-    public String addItemV6(Item item, RedirectAttributes redirectAttributes) {
-        log.info("item open = {}", item.isOpen());
-
-        Item saveItem = itemRepository.save(item);
-        redirectAttributes.addAttribute("itemId", saveItem.getId());
-        redirectAttributes.addAttribute("status", true); // query param
-        return "redirect:/form/items/{itemId}";
-    }
-
-    @GetMapping("/{itemId}/edit")
-    public String editForm(@PathVariable Long itemId, Model model) {
-        Item findItem = itemRepository.findById(itemId);
-        model.addAttribute("item", findItem);
-        return "form/editForm";
-    }
-
-    @PostMapping("/{itemId}/edit")
-    public String edit(@PathVariable Long itemId, @ModelAttribute Item item) {
-        log.info("edit item = {}", item.isOpen());
-        itemRepository.update(itemId, item);
-        return "redirect:/form/items/{itemId}";
     }
 }
