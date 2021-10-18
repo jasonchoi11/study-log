@@ -18,7 +18,13 @@
   * 체크박스 (멀티) - 판매 여부 기능 추가 (```filed``` + ```check``` 속성 해결) ```@ModelAttribute```
   * 라디오 버튼 - 등록 지역 선택
   * 셀렉트 박스 - 상품 종류 선택 (```enum```)
-  
+* 메시지 국제화
+  * 메시지 기능: 메시지를 한곳에서 관리하는 기능 (예) ```message.properties``` 파일
+  * 국제화 기능: 메시지 기능을 나라 별로 관리 (예) ```message_en.properties``` 파일, ```accept-language``` header 로 구분하고 ```cookie``` 로 유지
+  * **But, Thymeleaf 스프링이 제공하는 메시지, 국제화를 통합하여 제공**
+    * ```MessageSource```
+    * ```message.properties``` 파일을 자동으로 읽음 (스프링 부트)
+    * 스프링 부트에서 ```spring.messages.basename=messages,config.i18n.messages``` 설정 (기본값은 ```spring.messages.basename=messages```)
 ---
 
 
