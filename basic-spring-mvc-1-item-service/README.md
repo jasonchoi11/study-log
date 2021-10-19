@@ -25,6 +25,8 @@
     * ```MessageSource```
     * ```message.properties``` 파일을 자동으로 읽음 (스프링 부트)
     * 스프링 부트에서 ```spring.messages.basename=messages,config.i18n.messages``` 설정 (기본값은 ```spring.messages.basename=messages```)
+    * Thymeleaf 메시지 표현식: ```#{...}```
+    * ```LocaleResolver```
 ---
 
 
