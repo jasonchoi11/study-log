@@ -27,6 +27,11 @@
     * 스프링 부트에서 ```spring.messages.basename=messages,config.i18n.messages``` 설정 (기본값은 ```spring.messages.basename=messages```)
     * Thymeleaf 메시지 표현식: ```#{...}```
     * ```LocaleResolver```
+* Validation
+  * 요구사항
+    * 타입검증: 가격, 수량에 문자가 들어오면 오류 처리
+    * 필드검증: 상품명(필수,공백X), 가격 10,000원 이상, 100만원 이하, 수량 최대 9,999
+    * 특정필드검증: ```가격 * 수량```은 10,000원 이상
 ---
 
 
