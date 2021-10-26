@@ -63,7 +63,7 @@ public class ValidationItemControllerV1 {
         if (item.getPrice() != null && item.getQuantity() != null) {
             int resultPrice = item.getPrice() * item.getQuantity();
             if (resultPrice < 10000) {
-                errors.put("globalError", "가격 * 수량의 합은 10,000원 이상이여야 한다. 현재 값 = " + resultPrice);
+                errors.put("globalError", "가격 * 수량의 합은 10,000원 이상이여야 한다. 현재 값 = " + resultPrice + " 원");
             }
         }
 
