@@ -12,4 +12,8 @@ public class ElvisSerializable implements Serializable{
     public static ElvisSerializable getInstance() {
         return INSTANCE;
     }
+
+    private Object readResolve() {
+        return INSTANCE;
+    }
 }
