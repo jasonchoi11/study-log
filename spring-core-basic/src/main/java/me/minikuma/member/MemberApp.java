@@ -1,9 +1,4 @@
-package me.minikuma;
-
-import me.minikuma.member.Grade;
-import me.minikuma.member.Member;
-import me.minikuma.member.MemberService;
-import me.minikuma.member.MemberServiceImpl;
+package me.minikuma.member;
 
 public class MemberApp {
     // 스프링 프레임워크 없이 테스트하기 위한 클래스
